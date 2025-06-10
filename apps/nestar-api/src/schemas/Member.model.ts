@@ -65,12 +65,12 @@ const MemberSchema = new Schema(
 			default: 0,
 		},
 
-		memberFollewers: {
+		memberFollowers: {
 			type: Number,
 			default: 0,
 		},
 
-		memberFollewings: {
+		memberFollowings: {
 			type: Number,
 			default: 0,
 		},

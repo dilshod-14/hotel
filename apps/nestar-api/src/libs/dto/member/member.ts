@@ -76,5 +76,5 @@ export class Member {
 	createdAt: Date;
 
 	@Field(() => Date)
-	updateAt: Date;
+	updatedAt: Date;
 }
