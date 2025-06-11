@@ -9,11 +9,23 @@
 // printNumbers();
 
 
-function reverseInteger(num: number): number {
-    const reversed = Number(String(Math.abs(num)).split('').reverse().join(''));
-    return num < 0 ? -reversed : reversed;
+// function reverseInteger(num: number): number {
+//     const reversed = Number(String(Math.abs(num)).split('').reverse().join(''));
+//     return num < 0 ? -reversed : reversed;
+// }
+
+
+// console.log(reverseInteger(123456789)); 
+// console.log(reverseInteger(-98765));    
+
+function stringToKebab(str: string): string {
+    return str
+        .toLowerCase()           
+        .split(' ')              
+        .filter(word => word)   
+        .join('-');              
 }
 
-
-console.log(reverseInteger(123456789)); 
-console.log(reverseInteger(-98765));    
+console.log(stringToKebab("I love Kebab"));           
+console.log(stringToKebab("Hello World"));            
+console.log(stringToKebab("  Multiple   Spaces  "));  
