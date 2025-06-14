@@ -18,14 +18,30 @@
 // console.log(reverseInteger(123456789)); 
 // console.log(reverseInteger(-98765));    
 
-function stringToKebab(str: string): string {
-    return str
-        .toLowerCase()           
-        .split(' ')              
-        .filter(word => word)   
-        .join('-');              
+// function stringToKebab(str: string): string {
+//     return str
+//         .toLowerCase()           
+//         .split(' ')              
+//         .filter(word => word)   
+//         .join('-');              
+// }
+
+// console.log(stringToKebab("I love Kebab"));           
+// console.log(stringToKebab("Hello World"));            
+// console.log(stringToKebab("  Multiple   Spaces  "));  
+
+
+function rotateArray<T>(arr: T[], index: number): T[] {
+    if (index < 0 || index >= arr.length) {
+        throw new Error('Index noto‘g‘ri');
+    }
+
+    const leftPart: T[] = arr.slice(0, index);
+    const rightPart: T[] = arr.slice(index);
+
+    return [...rightPart, ...leftPart];
 }
 
-console.log(stringToKebab("I love Kebab"));           
-console.log(stringToKebab("Hello World"));            
-console.log(stringToKebab("  Multiple   Spaces  "));  
+
+const result = rotateArray<number>([1, 2, 3, 4, 5, 6], 3);
+console.log(result); 
