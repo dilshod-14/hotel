@@ -1,4 +1,4 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Member } from '../../libs/dto/member/member';
 import { T } from '../../libs/types/common';
@@ -7,6 +7,7 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 @Injectable()
 export class AuthService {
 	constructor(private jwtService: JwtService) {}
+
 	public async hashPassword(memberPassword: string): Promise<string> {
 		const salt = await bcrypt.genSalt();
 		return await bcrypt.hash(memberPassword, salt);
@@ -23,7 +24,7 @@ export class AuthService {
 			payload[`${ele}`] = member[`${ele}`];
 		});
 		delete payload.memberPassword;
-		return await this.jwtService.signAsync(payload, { expiresIn: '9h' });
+		return await this.jwtService.signAsync(payload);
 	}
 
 	public async verifyToken(token: string): Promise<Member> {

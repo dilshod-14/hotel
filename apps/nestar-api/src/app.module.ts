@@ -28,8 +28,8 @@ import { T } from './libs/types/common';
 				return graphQLFormattedError;
 			},
 		}),
-		ComponentsModule,
-		DatabaseModule,
+		ComponentsModule, //HTTP
+		DatabaseModule, //TCP
 	],
 	controllers: [AppController],
 	providers: [AppService, AppResolver],
