@@ -31,17 +31,33 @@
 // console.log(stringToKebab("  Multiple   Spaces  "));  
 
 
-function rotateArray<T>(arr: T[], index: number): T[] {
-    if (index < 0 || index >= arr.length) {
-        throw new Error('Index noto‘g‘ri');
+// function rotateArray<T>(arr: T[], index: number): T[] {
+//     if (index < 0 || index >= arr.length) {
+//         throw new Error('Index noto‘g‘ri');
+//     }
+
+//     const leftPart: T[] = arr.slice(0, index);
+//     const rightPart: T[] = arr.slice(index);
+
+//     return [...rightPart, ...leftPart];
+// }
+
+
+// const result = rotateArray<number>([1, 2, 3, 4, 5, 6], 3);
+// console.log(result); 
+
+function areParenthesesBalanced(str: string): boolean {
+    let count = 0;
+
+    for (let char of str) {
+        if (char === '(') count++;
+        if (char === ')') count--;
+
+        if (count < 0) return false;
     }
 
-    const leftPart: T[] = arr.slice(0, index);
-    const rightPart: T[] = arr.slice(index);
-
-    return [...rightPart, ...leftPart];
+    return count === 0;
 }
 
-
-const result = rotateArray<number>([1, 2, 3, 4, 5, 6], 3);
-console.log(result); 
+console.log(areParenthesesBalanced("string()ichida(qavslar)soni()balansda"));
+console.log(areParenthesesBalanced("(salom) dunyo )(")); 
