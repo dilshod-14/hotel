@@ -8,6 +8,7 @@ import { ViewModule } from '../view/view.module';
 import { MemberResolver } from '../member/member.resolver';
 import { MemberService } from '../member/member.service';
 import PropertySchema from '../../schemas/Property.model';
+import { MemberModule } from '../member/member.module';
 
 @Module({
   	imports: [
@@ -19,6 +20,7 @@ import PropertySchema from '../../schemas/Property.model';
 		]),
 		AuthModule,
 		ViewModule,
+    MemberModule
 	],
   providers: [PropertyResolver, PropertyService]
 })
