@@ -46,18 +46,47 @@
 // const result = rotateArray<number>([1, 2, 3, 4, 5, 6], 3);
 // console.log(result); 
 
-function areParenthesesBalanced(str: string): boolean {
-    let count = 0;
+// function areParenthesesBalanced(str: string): boolean {
+//     let count = 0;
 
-    for (let char of str) {
-        if (char === '(') count++;
-        if (char === ')') count--;
+//     for (let char of str) {
+//         if (char === '(') count++;
+//         if (char === ')') count--;
 
-        if (count < 0) return false;
+//         if (count < 0) return false;
+//     }
+
+//     return count === 0;
+// }
+
+// console.log(areParenthesesBalanced("string()ichida(qavslar)soni()balansda"));
+// console.log(areParenthesesBalanced("(salom) dunyo )("));
+
+function areArraysEqual<T>(arr1: T[], arr2: T[]): boolean {
+  if (arr1.length !== arr2.length) return false;
+
+  const countElements = (arr: T[]): Record<string, number> => {
+    const count: Record<string, number> = {};
+    for (const el of arr) {
+      const key = JSON.stringify(el);
+      count[key] = (count[key] || 0) + 1;
     }
+    return count;
+  };
 
-    return count === 0;
+  const count1 = countElements(arr1);
+  const count2 = countElements(arr2);
+
+  for (const key in count1) {
+    if (count1[key] !== count2[key]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
-console.log(areParenthesesBalanced("string()ichida(qavslar)soni()balansda"));
-console.log(areParenthesesBalanced("(salom) dunyo )(")); 
+console.log(areArraysEqual([1, 2, 3], [3, 1, 2])); 
+console.log(areArraysEqual([1, 2, 3], [3, 1, 2, 1])); 
+console.log(areArraysEqual([1, 2, 3], [4, 1, 2])); 
+
