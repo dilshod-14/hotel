@@ -2,8 +2,8 @@ import { MemberAuthType, MemberStatus } from './../../enums/member.enum';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { MemberType } from '../../enums/member.enum';
-import { availableAgentSorts, availableMemberSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
+import { availableAgentSorts, availableMemberSorts } from '../../config';
 
 @InputType()
 export class MemberInput {
