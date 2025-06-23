@@ -62,31 +62,51 @@
 // console.log(areParenthesesBalanced("string()ichida(qavslar)soni()balansda"));
 // console.log(areParenthesesBalanced("(salom) dunyo )("));
 
-function areArraysEqual<T>(arr1: T[], arr2: T[]): boolean {
-  if (arr1.length !== arr2.length) return false;
+// function areArraysEqual<T>(arr1: T[], arr2: T[]): boolean {
+//   if (arr1.length !== arr2.length) return false;
 
-  const countElements = (arr: T[]): Record<string, number> => {
-    const count: Record<string, number> = {};
-    for (const el of arr) {
-      const key = JSON.stringify(el);
-      count[key] = (count[key] || 0) + 1;
+//   const countElements = (arr: T[]): Record<string, number> => {
+//     const count: Record<string, number> = {};
+//     for (const el of arr) {
+//       const key = JSON.stringify(el);
+//       count[key] = (count[key] || 0) + 1;
+//     }
+//     return count;
+//   };
+
+//   const count1 = countElements(arr1);
+//   const count2 = countElements(arr2);
+
+//   for (const key in count1) {
+//     if (count1[key] !== count2[key]) {
+//       return false;
+//     }
+//   }
+
+//   return true;
+// }
+
+// console.log(areArraysEqual([1, 2, 3], [3, 1, 2])); 
+// console.log(areArraysEqual([1, 2, 3], [3, 1, 2, 1])); 
+// console.log(areArraysEqual([1, 2, 3], [4, 1, 2])); 
+
+
+
+function findDuplicates(arr: number[]): number[] {
+    const countMap: Record<number, number> = {};
+    const result: number[] = [];
+
+    for (let num of arr) {
+        countMap[num] = (countMap[num] || 0) + 1;
     }
-    return count;
-  };
 
-  const count1 = countElements(arr1);
-  const count2 = countElements(arr2);
-
-  for (const key in count1) {
-    if (count1[key] !== count2[key]) {
-      return false;
+    for (let key in countMap) {
+        if (countMap[Number(key)] >= 2) {
+            result.push(Number(key));
+        }
     }
-  }
 
-  return true;
+    return result;
 }
 
-console.log(areArraysEqual([1, 2, 3], [3, 1, 2])); 
-console.log(areArraysEqual([1, 2, 3], [3, 1, 2, 1])); 
-console.log(areArraysEqual([1, 2, 3], [4, 1, 2])); 
-
+console.log(findDuplicates([1, 2, 3, 4, 5, 4, 3, 4]));
