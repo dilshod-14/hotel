@@ -11,7 +11,7 @@ import PropertySchema from '../../schemas/Property.model';
 import { MemberModule } from '../member/member.module';
 
 @Module({
-  	imports: [
+	imports: [
 		MongooseModule.forFeature([
 			{
 				name: 'Property',
@@ -20,8 +20,8 @@ import { MemberModule } from '../member/member.module';
 		]),
 		AuthModule,
 		ViewModule,
-    MemberModule
+		MemberModule,
 	],
-  providers: [PropertyResolver, PropertyService]
+	providers: [PropertyResolver, PropertyService],
 })
 export class PropertyModule {}
