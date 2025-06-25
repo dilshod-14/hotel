@@ -22,4 +22,6 @@ export class ViewService {
 		const search: T = { memberId: memberId, viewRefId: viewRefId };
 		return await this.viewModel.findOne(search).exec();
 	}
+
+	
 }
