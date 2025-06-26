@@ -92,21 +92,43 @@
 
 
 
-function findDuplicates(arr: number[]): number[] {
-    const countMap: Record<number, number> = {};
-    const result: number[] = [];
+// function findDuplicates(arr: number[]): number[] {
+//     const countMap: Record<number, number> = {};
+//     const result: number[] = [];
 
-    for (let num of arr) {
-        countMap[num] = (countMap[num] || 0) + 1;
+//     for (let num of arr) {
+//         countMap[num] = (countMap[num] || 0) + 1;
+//     }
+
+//     for (let key in countMap) {
+//         if (countMap[Number(key)] >= 2) {
+//             result.push(Number(key));
+//         }
+//     }
+
+//     return result;
+// }
+
+// console.log(findDuplicates([1, 2, 3, 4, 5, 4, 3, 4]));
+
+function countNumberAndLetters(input: string): { number: number; letter: number } {
+  let numberCount: number = 0;
+  let letterCount: number = 0;
+
+  for (const char of input) {
+    if (/[0-9]/.test(char)) {
+      numberCount++;
+    } else if (/[a-zA-Z]/.test(char)) {
+      letterCount++;
     }
+  }
 
-    for (let key in countMap) {
-        if (countMap[Number(key)] >= 2) {
-            result.push(Number(key));
-        }
-    }
-
-    return result;
+  return {
+    number: numberCount,
+    letter: letterCount
+  };
 }
 
-console.log(findDuplicates([1, 2, 3, 4, 5, 4, 3, 4]));
+
+console.log(countNumberAndLetters("string152%\\¥")); 
+
