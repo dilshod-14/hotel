@@ -63,6 +63,17 @@ export class BoardArticleResolver {
 		return await this.boardArticleService.getBoardArticles(memberId, input);
 	}
 
+	@UseGuards(AuthGuard)
+	@Mutation(() => BoardArticle)
+	public async likeTargetBoardArticle(
+		@Args('articleId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<BoardArticle> {
+		console.log('Mutation: likeTargetBoardArticles');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.boardArticleService.likeTargetBoardArticle(memberId, likeRefId);
+	}
+
 	/**Admin */
 
 	@Roles(MemberType.ADMIN)
@@ -87,15 +98,15 @@ export class BoardArticleResolver {
 		return await this.boardArticleService.updateBoardArticleByAdmin(input);
 	}
 
-    @Roles(MemberType.ADMIN)
-@UseGuards(RolesGuard)
-@Mutation((returns) => BoardArticle)
-public async removeBoardArticleByAdmin(
-  @Args('articleId') input: string,
-  @AuthMember('_id') memberId: ObjectId,
-): Promise<BoardArticle> {
-  console.log('Mutation: removeBoardArticleByAdmin');
-  const articleId = shapeIntoMongoObjectId(input);
-  return await this.boardArticleService.removeBoardArticleByAdmin(articleId);
-}
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => BoardArticle)
+	public async removeBoardArticleByAdmin(
+		@Args('articleId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<BoardArticle> {
+		console.log('Mutation: removeBoardArticleByAdmin');
+		const articleId = shapeIntoMongoObjectId(input);
+		return await this.boardArticleService.removeBoardArticleByAdmin(articleId);
+	}
 }
