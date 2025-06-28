@@ -1,4 +1,4 @@
-import { ViewInput } from './../../libs/dto/view/view.input';
+import { Follower, Following, MeFollowed } from './../../libs/dto/follow/follow';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
@@ -19,6 +19,7 @@ import { LikeService } from '../like/like.service';
 export class MemberService {
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
+		@InjectModel('Member') private readonly followModel: Model<Follower | Following>,
 		private authService: AuthService,
 		private viewService: ViewService,
 		private likeService: LikeService,
@@ -77,25 +78,30 @@ export class MemberService {
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		if (memberId) {
-			//record view
 			const viewInput = { memberId: memberId, viewRefId: targetId, viewGroup: ViewGroup.MEMBER };
 
 			const newView = await this.viewService.recordView(viewInput);
-			// increase memberView
-			if (newView) await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec();
-			targetMember.memberViews++;
-		}
- 
-		// meLiked
-		const likeInput = {
-			memberId: memberId,
-			likeRefId: targetId,
-			likeGroup: LikeGroup.MEMBER,
-		};
+			if (newView) {
+				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec();
+				targetMember.memberViews++;
+			}
 
-		targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
-		// meFollowed
+			const likeInput = {
+				memberId: memberId,
+				likeRefId: targetId,
+				likeGroup: LikeGroup.MEMBER,
+			};
+
+			targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
+			// meFollowed
+			targetMember.meFollowed = await this.checkSubscription(memberId, targetId);
+		}
 		return targetMember;
+	}
+
+	private async checkSubscription(followerId: ObjectId, followingId: ObjectId): Promise<MeFollowed[]> {
+		const result = await this.followModel.findOne({ followingId: followingId, followerId: followerId }).exec();
+		return result ? [{ followerId: followerId, followingId: followingId, myFollowing: true }] : [];
 	}
 
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
@@ -173,6 +179,8 @@ export class MemberService {
 
 		return result;
 	}
+
+	
 
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
 		const { _id, targetKey, modifier } = input;

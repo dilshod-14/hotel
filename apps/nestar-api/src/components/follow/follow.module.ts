@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {  Module } from '@nestjs/common';
 import FollowSchema from '../../schemas/Follow.model';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FollowResolver } from './follow.resolver';
@@ -18,9 +18,8 @@ import { MemberModule } from '../member/member.module';
 		]),
 
 		AuthModule,
-		ViewModule,
 		LikeModule,
-		MemberModule,
+		MemberModule
 	],
 	providers: [FollowResolver, FollowService],
 	exports: [FollowService],
