@@ -111,24 +111,43 @@
 
 // console.log(findDuplicates([1, 2, 3, 4, 5, 4, 3, 4]));
 
-function countNumberAndLetters(input: string): { number: number; letter: number } {
-  let numberCount: number = 0;
-  let letterCount: number = 0;
+// function countNumberAndLetters(input: string): { number: number; letter: number } {
+//   let numberCount: number = 0;
+//   let letterCount: number = 0;
 
-  for (const char of input) {
-    if (/[0-9]/.test(char)) {
-      numberCount++;
-    } else if (/[a-zA-Z]/.test(char)) {
-      letterCount++;
+//   for (const char of input) {
+//     if (/[0-9]/.test(char)) {
+//       numberCount++;
+//     } else if (/[a-zA-Z]/.test(char)) {
+//       letterCount++;
+//     }
+//   }
+
+//   return {
+//     number: numberCount,
+//     letter: letterCount
+//   };
+// }
+
+
+// console.log(countNumberAndLetters("string152%\\¥")); 
+
+function singleNumber(arr: number[]): number | undefined {
+  const countMap = new Map<number, number>();
+
+  for (const num of arr) {
+    countMap.set(num, (countMap.get(num) || 0) + 1);
+  }
+
+  for (const [key, value] of countMap.entries()) {
+    if (value === 1) {
+      return key;
     }
   }
 
-  return {
-    number: numberCount,
-    letter: letterCount
-  };
+  return undefined; 
 }
 
+console.log(singleNumber([4, 2, 1, 2, 1])); 
 
-console.log(countNumberAndLetters("string152%\\¥")); 
 
