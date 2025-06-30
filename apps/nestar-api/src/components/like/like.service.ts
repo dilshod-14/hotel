@@ -18,7 +18,7 @@ export class LikeService {
 			await this.likeModel.findOneAndDelete(search).exec();
 			modifier = -1;
 		} else {
-			try { 
+			try {
 				await this.likeModel.create(input);
 			} catch (err) {
 				console.log('Error, Service.model:', err.message);

@@ -81,12 +81,10 @@ export class Property {
 	/**from agrgregation */
 
 	@Field(() => [MeLiked], { nullable: true })
-		meLiked?: MeLiked[];
+	meLiked?: MeLiked[];
 
 	@Field(() => Member, { nullable: true })
 	memberData?: Member;
-
-	
 }
 
 @ObjectType()

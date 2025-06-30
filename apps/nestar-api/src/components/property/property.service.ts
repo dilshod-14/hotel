@@ -1,5 +1,5 @@
 import { ViewService } from './../view/view.service';
-import { Model, ObjectId } from 'mongoose';
+import { Model, ObjectId, Schema } from 'mongoose';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Properties, Property } from '../../libs/dto/property/property';
@@ -16,7 +16,7 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import * as moment from 'moment';
-import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -61,13 +61,13 @@ export class PropertyService {
 				await this.propertyStatsEditor({ _id: propertyId, targetKey: 'propertyViews', modifier: 1 });
 				targetProperty.propertyViews++;
 			}
-				const likeInput = {
-			memberId: memberId,
-			likeRefId: propertyId,
-			likeGroup: LikeGroup.PROPERTY,
-		};
+			const likeInput = {
+				memberId: memberId,
+				likeRefId: propertyId,
+				likeGroup: LikeGroup.PROPERTY,
+			};
 
-		targetProperty.meLiked = await this.likeService.checkLikeExistence(likeInput)
+			targetProperty.meLiked = await this.likeService.checkLikeExistence(likeInput);
 		}
 
 		targetProperty.memberData = await this.memberService.getMember(null, targetProperty.memberId);
@@ -124,7 +124,8 @@ export class PropertyService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							// meLiked
+
+							lookupAuthMemberLiked(memberId),
 							lookupMember,
 							{ $unwind: '$memberData' },
 						],
@@ -207,21 +208,23 @@ export class PropertyService {
 	}
 
 	public async likeTargetProperty(memberId: ObjectId, likeRefId: ObjectId): Promise<Property> {
-			const target: Property = await this.propertyModel.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE }).exec();
-			if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-			const input: LikeInput = {
-				memberId: memberId,
-				likeRefId: likeRefId,
-				likeGroup: LikeGroup.MEMBER,
-			};
-			//LIKE TOOG via Like modules
-	
-			const modifier: number = await this.likeService.toggleLike(input);
-			const result = await this.propertyStatsEditor({ _id: likeRefId, targetKey: 'propertyLikes', modifier: modifier });
-	
-			if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
-			return result;
-		}
+		const target: Property = await this.propertyModel
+			.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE })
+			.exec();
+		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.PROPERTY,
+		};
+		//LIKE TOOG via Like modules
+
+		const modifier: number = await this.likeService.toggleLike(input);
+		const result = await this.propertyStatsEditor({ _id: likeRefId, targetKey: 'propertyLikes', modifier: modifier });
+
+		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+		return result;
+	}
 
 	/** ADMIN **/
 	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
@@ -293,4 +296,10 @@ export class PropertyService {
 
 		return result;
 	}
+}
+function lookupAuthMemberLike(
+	memberId: Schema.Types.ObjectId,
+	arg1: string,
+): import('mongoose').PipelineStage.FacetPipelineStage {
+	throw new Error('Function not implemented.');
 }
