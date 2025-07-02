@@ -2,10 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BatchService {
-	getHello(): string {
-		return 'welcome to Nestar Batch Service!';
-	}
-
 	public async batchRollback(): Promise<void> {
 		console.log('batchRollback');
 	}
@@ -16,5 +12,9 @@ export class BatchService {
 
 	public async batchAgents(): Promise<void> {
 		console.log('batchAgents');
+	}
+
+	getHello(): string {
+		return 'welcome to Nestar Batch Service!';
 	}
 }
