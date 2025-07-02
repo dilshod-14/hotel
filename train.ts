@@ -150,26 +150,46 @@
 
 // console.log(singleNumber([4, 2, 1, 2, 1]));
 
-function firstUniqueCharIndex(s: string): number {
-  const charCount: Record<string, number> = {};
+// function firstUniqueCharIndex(s: string): number {
+//   const charCount: Record<string, number> = {};
 
-  for (const char of s) {
-    charCount[char] = (charCount[char] || 0) + 1;
+//   for (const char of s) {
+//     charCount[char] = (charCount[char] || 0) + 1;
+//   }
+
+//   for (let i = 0; i < s.length; i++) {
+//     if (charCount[s[i]] === 1) {
+//       return i;
+//     }
+//   }
+
+//   return -1; 
+// }
+
+
+// console.log(firstUniqueCharIndex("stamp")); 
+// console.log(firstUniqueCharIndex("letter")); 
+// console.log(firstUniqueCharIndex("aabbcc"));
+
+function sumOfUnique(nums: number[]): number {
+  const countMap = new Map<number, number>();
+
+  for (const num of nums) {
+    countMap.set(num, (countMap.get(num) || 0) + 1);
   }
 
-  for (let i = 0; i < s.length; i++) {
-    if (charCount[s[i]] === 1) {
-      return i;
+  let sum = 0;
+  for (const [key, value] of countMap.entries()) {
+    if (value === 1) {
+      sum += key;
     }
   }
 
-  return -1; 
+  return sum;
 }
 
+console.log(sumOfUnique([1, 2, 3, 2])); 
 
-console.log(firstUniqueCharIndex("stamp")); 
-console.log(firstUniqueCharIndex("letter")); 
-console.log(firstUniqueCharIndex("aabbcc"));
 
 
 
