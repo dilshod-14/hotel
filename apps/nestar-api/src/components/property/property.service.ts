@@ -1,7 +1,6 @@
-import { ViewService } from './../view/view.service';
-import { Model, ObjectId, Schema } from 'mongoose';
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Properties, Property } from '../../libs/dto/property/property';
 import {
 	AgentPropertiesInquiry,
@@ -13,10 +12,11 @@ import {
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
 import { PropertyStatus } from '../../libs/enums/property.enum';
-import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
-import { PropertyUpdate } from '../../libs/dto/property/property.update';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { ViewService } from '../view/view.service';
 import * as moment from 'moment';
+import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
@@ -34,14 +34,10 @@ export class PropertyService {
 	public async createProperty(input: PropertyInput): Promise<Property> {
 		try {
 			const result = await this.propertyModel.create(input);
-			await this.memberService.memberStatsEditor({
-				_id: result.memberId,
-				targetKey: 'memberProperties',
-				modifier: 1,
-			});
+			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberProperties', modifier: 1 });
 			return result;
 		} catch (err) {
-			console.log('Error, Service.model:', err.message);
+			console.log('Error, Service.model: ', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -62,12 +58,8 @@ export class PropertyService {
 				await this.propertyStatsEditor({ _id: propertyId, targetKey: 'propertyViews', modifier: 1 });
 				targetProperty.propertyViews++;
 			}
-			const likeInput = {
-				memberId: memberId,
-				likeRefId: propertyId,
-				likeGroup: LikeGroup.PROPERTY,
-			};
-
+			// meLiked
+			const likeInput: LikeInput = { memberId: memberId, likeRefId: propertyId, likeGroup: LikeGroup.PROPERTY };
 			targetProperty.meLiked = await this.likeService.checkLikeExistence(likeInput);
 		}
 
@@ -75,14 +67,8 @@ export class PropertyService {
 		return targetProperty;
 	}
 
-	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
-		const { _id, targetKey, modifier } = input;
-		return await this.propertyModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
-	}
-
 	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
 		let { propertyStatus, soldAt, deletedAt } = input;
-
 		const search: T = {
 			_id: input._id,
 			memberId: memberId,
@@ -93,7 +79,6 @@ export class PropertyService {
 		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
 
 		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
-
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
 		if (soldAt || deletedAt) {
@@ -103,18 +88,15 @@ export class PropertyService {
 				modifier: -1,
 			});
 		}
-
 		return result;
 	}
 
 	public async getProperties(memberId: ObjectId, input: PropertiesInquiry): Promise<Properties> {
 		const match: T = { propertyStatus: PropertyStatus.ACTIVE };
-		const sort: T = {
-			[input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
-		};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
-		console.log('match:', match);
+		console.log('match', match);
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -125,7 +107,7 @@ export class PropertyService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-
+							// meLiked
 							lookupAuthMemberLiked(memberId),
 							lookupMember,
 							{ $unwind: '$memberData' },
@@ -135,7 +117,6 @@ export class PropertyService {
 				},
 			])
 			.exec();
-
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
@@ -154,12 +135,11 @@ export class PropertyService {
 			options,
 			text,
 		} = input.search;
-
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
-		if (locationList) match.propertyLocation = { $in: locationList };
-		if (roomsList) match.propertyRooms = { $in: roomsList };
-		if (bedsList) match.propertyBeds = { $in: bedsList };
-		if (typeList) match.propertyType = { $in: typeList };
+		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
+		if (roomsList && roomsList.length) match.propertyRooms = { $in: roomsList };
+		if (bedsList && bedsList.length) match.propertyBeds = { $in: bedsList };
+		if (typeList && typeList.length) match.propertyType = { $in: typeList };
 
 		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
@@ -173,14 +153,13 @@ export class PropertyService {
 		}
 	}
 
-	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties>{
-	return await this.likeService.getFavoriteProperties(memberId, input)	
+	public async getFavorities(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+		return await this.likeService.getFavoriteProperties(memberId, input);
 	}
 
-	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties>{
-	return await this.viewService.getVisitedProperties(memberId, input)	
+	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+		return await this.viewService.getVisitedProperties(memberId, input);
 	}
-
 
 	public async getAgentProperties(memberId: ObjectId, input: AgentPropertiesInquiry): Promise<Properties> {
 		const { propertyStatus } = input.search;
@@ -190,9 +169,7 @@ export class PropertyService {
 			memberId: memberId,
 			propertyStatus: propertyStatus ?? { $ne: PropertyStatus.DELETE },
 		};
-		const sort: T = {
-			[input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
-		};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -211,7 +188,6 @@ export class PropertyService {
 				},
 			])
 			.exec();
-
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
@@ -222,13 +198,14 @@ export class PropertyService {
 			.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE })
 			.exec();
 		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
 		const input: LikeInput = {
 			memberId: memberId,
 			likeRefId: likeRefId,
 			likeGroup: LikeGroup.PROPERTY,
 		};
-		//LIKE TOOG via Like modules
 
+		// LIKE TOGGLE
 		const modifier: number = await this.likeService.toggleLike(input);
 		const result = await this.propertyStatsEditor({ _id: likeRefId, targetKey: 'propertyLikes', modifier: modifier });
 
@@ -236,16 +213,15 @@ export class PropertyService {
 		return result;
 	}
 
-	/** ADMIN **/
+	// ADMIN
+
 	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
 		const { propertyStatus, propertyLocationList } = input.search;
 		const match: T = {};
-		const sort: T = {
-			[input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
-		};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		if (propertyStatus) match.propertyStatus = propertyStatus;
-		if (propertyLocationList) match.propertyLocation = { $in: propertyLocationList };
+		if (propertyLocationList) match.propertyLocationList = { $in: propertyLocationList };
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -264,7 +240,6 @@ export class PropertyService {
 				},
 			])
 			.exec();
-
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
@@ -272,17 +247,16 @@ export class PropertyService {
 
 	public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
 		let { propertyStatus, soldAt, deletedAt } = input;
-
 		const search: T = {
 			_id: input._id,
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
 		if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
-		if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
+		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
 
 		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
-		if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
 		if (soldAt || deletedAt) {
 			await this.memberService.memberStatsEditor({
@@ -296,20 +270,15 @@ export class PropertyService {
 	}
 
 	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Property> {
-		const search: T = {
-			_id: propertyId,
-			propertyStatus: PropertyStatus.DELETE,
-		};
-
+		const search: T = { _id: propertyId, propertyStatus: PropertyStatus.DELETE };
 		const result = await this.propertyModel.findOneAndDelete(search).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
 
 		return result;
 	}
-}
-function lookupAuthMemberLike(
-	memberId: Schema.Types.ObjectId,
-	arg1: string,
-): import('mongoose').PipelineStage.FacetPipelineStage {
-	throw new Error('Function not implemented.');
+
+	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
+		const { _id, targetKey, modifier } = input;
+		return await this.propertyModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
+	}
 }
