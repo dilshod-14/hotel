@@ -7,3 +7,4 @@ import { AuthModule } from '../components/auth/auth.module';
 	providers: [SocketGateway],
 })
 export class SocketModule {}
+ 
