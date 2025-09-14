@@ -107,6 +107,13 @@ const PropertySchema = new Schema(
 		constructedAt: {
 			type: Date,
 		},
+
+		propertyStars: {
+			type: Number,
+			default: 0,
+			min: 0,
+			max: 5,
+		},
 	},
 	{ timestamps: true, collection: 'properties' },
 );

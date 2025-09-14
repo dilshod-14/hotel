@@ -67,6 +67,12 @@ export class PropertyInput {
 	@IsOptional()
 	@Field(() => Date, { nullable: true })
 	constructedAt?: Date;
+
+	@IsOptional()
+	@IsInt()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	propertyStars?: number;
 }
 
 @InputType()
@@ -138,6 +144,10 @@ export class PISearch {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	text?: string;
+
+	@IsOptional()
+	@Field(() => [Int], { nullable: true })
+	starsList?: number[];
 }
 
 @InputType()
@@ -156,6 +166,10 @@ export class PropertiesInquiry {
 	@IsIn(availablePropertySorts)
 	@Field(() => String, { nullable: true })
 	sort?: string;
+
+	@IsOptional()
+	@Field(() => Int, { nullable: true })
+	minStars?: number;
 
 	@IsOptional()
 	@Field(() => Direction, { nullable: true })
@@ -247,6 +261,4 @@ export class OrdinaryInquiry {
 	@Min(1)
 	@Field(() => Int)
 	limit: number;
-
-	
 }

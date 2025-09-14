@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 import { Properties, Property } from '../../libs/dto/property/property';
 import {
 	AgentPropertiesInquiry,
@@ -24,6 +24,9 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 
 @Injectable()
 export class PropertyService {
+    findByIdAndUpdate(arg0: Types.ObjectId, arg1: { propertyStars: any; }) {
+        throw new Error('Method not implemented.');
+    }
 	constructor(
 		@InjectModel('Property') private readonly propertyModel: Model<Property>,
 		private memberService: MemberService,
@@ -134,12 +137,18 @@ export class PropertyService {
 			squaresRange,
 			options,
 			text,
+			starsList,
 		} = input.search;
+
+		if (starsList && starsList.length) match.propertyStars = { $in: starsList };
+
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
 		if (roomsList && roomsList.length) match.propertyRooms = { $in: roomsList };
 		if (bedsList && bedsList.length) match.propertyBeds = { $in: bedsList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
+
+		if (starsList && starsList.length) match.propertyStars = { $in: starsList };
 
 		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };

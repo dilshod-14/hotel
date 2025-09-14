@@ -48,6 +48,9 @@ export class Property {
 	@Field(() => Int)
 	propertyRank: number;
 
+	@Field(() => Int, { nullable: true })
+	propertyStars?: number;
+
 	@Field(() => [String])
 	propertyImages: string[];
 
@@ -77,6 +80,8 @@ export class Property {
 
 	@Field(() => Date)
 	updatedAt: Date;
+
+	
 
 	/**from agrgregation */
 
