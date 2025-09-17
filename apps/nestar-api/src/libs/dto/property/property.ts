@@ -66,6 +66,12 @@ export class Property {
 	@Field(() => String)
 	memberId: ObjectId;
 
+	@Field(() => Number, { nullable: true })
+	propertyRatingAvg: number;
+
+	@Field(() => Number, { nullable: true })
+	propertyRatingCount: number;
+
 	@Field(() => Date, { nullable: true })
 	soldAt?: Date;
 
@@ -80,8 +86,6 @@ export class Property {
 
 	@Field(() => Date)
 	updatedAt: Date;
-
-	
 
 	/**from agrgregation */
 

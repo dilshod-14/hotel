@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
+import { IsIn, IsInt, IsMongoId, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
 import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
 import { availableOptions, availablePropertySorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
@@ -261,4 +261,13 @@ export class OrdinaryInquiry {
 	@Min(1)
 	@Field(() => Int)
 	limit: number;
+}
+
+@InputType()
+export class RatePropertyInput {
+	@Field(() => String)
+	propertyId: ObjectId;
+
+	@Field(() => Int)
+	rating: number;
 }

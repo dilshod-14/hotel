@@ -96,6 +96,17 @@ const PropertySchema = new Schema(
 			ref: 'Member',
 		},
 
+		propertyRatingAvg: {
+			type: Number,
+			default: 0,
+			min: 0,
+			max: 5,
+		},
+		propertyRatingCount: {
+			type: Number,
+			default: 0,
+		},
+
 		soldAt: {
 			type: Date,
 		},

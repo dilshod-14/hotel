@@ -74,6 +74,13 @@ export class PropertyUpdate {
 	@Field(() => Int, { nullable: true })
 	propertyStars?: number;
 
+	@IsOptional()
+	@Field(() => Number, { nullable: true })
+	propertyRatingAvg?: number;
+
+	@IsOptional()
+	@Field(() => Number, { nullable: true })
+	propertyRatingCount?: number;
 	soldAt?: Date;
 
 	deletedAt?: Date;

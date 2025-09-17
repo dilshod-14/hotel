@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, Types } from 'mongoose';
 import { Properties, Property } from '../../libs/dto/property/property';
@@ -8,6 +8,7 @@ import {
 	OrdinaryInquiry,
 	PropertiesInquiry,
 	PropertyInput,
+	RatePropertyInput,
 } from '../../libs/dto/property/property.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -24,9 +25,9 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 
 @Injectable()
 export class PropertyService {
-    findByIdAndUpdate(arg0: Types.ObjectId, arg1: { propertyStars: any; }) {
-        throw new Error('Method not implemented.');
-    }
+	findByIdAndUpdate(arg0: Types.ObjectId, arg1: { propertyRatingAvg: any }) {
+		throw new Error('Method not implemented.');
+	}
 	constructor(
 		@InjectModel('Property') private readonly propertyModel: Model<Property>,
 		private memberService: MemberService,
@@ -98,7 +99,11 @@ export class PropertyService {
 		const match: T = { propertyStatus: PropertyStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
+		// 🟢 Mavjud shapeMatchQuery chaqiruvi
 		this.shapeMatchQuery(match, input);
+
+		
+
 		console.log('match', match);
 
 		const result = await this.propertyModel
@@ -120,6 +125,7 @@ export class PropertyService {
 				},
 			])
 			.exec();
+
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
@@ -140,7 +146,7 @@ export class PropertyService {
 			starsList,
 		} = input.search;
 
-		if (starsList && starsList.length) match.propertyStars = { $in: starsList };
+		if (starsList && starsList.length) match.propertyRatingAvg = { $in: starsList };
 
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
@@ -148,7 +154,7 @@ export class PropertyService {
 		if (bedsList && bedsList.length) match.propertyBeds = { $in: bedsList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
 
-		if (starsList && starsList.length) match.propertyStars = { $in: starsList };
+		// if (starsList && starsList.length) match.propertyStars = { $in: starsList };
 
 		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
@@ -289,5 +295,25 @@ export class PropertyService {
 	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
 		const { _id, targetKey, modifier } = input;
 		return await this.propertyModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
+	}
+
+	//////////////////
+
+	public async rateProperty(memberId: ObjectId, input: RatePropertyInput): Promise<Property> {
+		const property = await this.propertyModel.findById(input.propertyId);
+		if (!property) throw new NotFoundException('Property not found');
+
+		// Agar birinchi baho bo‘lsa
+		if (!property.propertyRatingCount || property.propertyRatingCount === 0) {
+			property.propertyRatingCount = 1;
+			property.propertyRatingAvg = input.rating;
+		} else {
+			const totalScore = property.propertyRatingAvg * property.propertyRatingCount;
+			property.propertyRatingCount += 1;
+			property.propertyRatingAvg = (totalScore + input.rating) / property.propertyRatingCount;
+		}
+
+		await property.save();
+		return property;
 	}
 }
