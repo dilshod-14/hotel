@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'ws';
-import * as WebSocket from 'Ws';
+import * as WebSocket from 'ws';
 import { AuthService } from '../components/auth/auth.service';
 import * as url from 'url';
 import { Member } from '../libs/dto/member/member';
