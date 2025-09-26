@@ -7,7 +7,6 @@ import { LikeModule } from './like/like.module';
 import { ViewModule } from './view/view.module';
 import { FollowModule } from './follow/follow.module';
 import { BoardArticleModule } from './board-article/board-article.module';
-import { ReviewModule } from './review/review.module';
 import { NotificationModule } from './notification/notification.module';
 
 @Module({
@@ -20,7 +19,6 @@ import { NotificationModule } from './notification/notification.module';
 		LikeModule,
 		ViewModule,
 		FollowModule,
-		ReviewModule,
 		NotificationModule,
 	],
 })

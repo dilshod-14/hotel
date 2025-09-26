@@ -63,14 +63,13 @@ export class BoardArticleService {
 				targetBoardArticle.articleViews++;
 			}
 
-					const likeInput = {
-			memberId: memberId,
-			likeRefId: articleId,
-			likeGroup: LikeGroup.PROPERTY,
-		};
+			const likeInput = {
+				memberId: memberId,
+				likeRefId: articleId,
+				likeGroup: LikeGroup.PROPERTY,
+			};
 
-		targetBoardArticle.meLiked = await this.likeService.checkLikeExistence(likeInput)
-		
+			targetBoardArticle.meLiked = await this.likeService.checkLikeExistence(likeInput);
 		}
 
 		// meLiked
@@ -123,7 +122,7 @@ export class BoardArticleService {
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
 							// mLiked
-							lookupAuthMemberLiked(memberId, "_id"),
+							lookupAuthMemberLiked(memberId, '$_id'),
 							lookupMember,
 							{ $unwind: '$memberData' },
 						],
