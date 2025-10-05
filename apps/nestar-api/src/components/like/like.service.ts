@@ -13,23 +13,25 @@ import { lookupFavorite } from '../../libs/config';
 @Injectable()
 export class LikeService {
 	constructor(@InjectModel('Like') private readonly likeModel: Model<Like>) {}
+
 	public async toggleLike(input: LikeInput): Promise<number> {
 		const search: T = { memberId: input.memberId, likeRefId: input.likeRefId },
 			exist = await this.likeModel.findOne(search).exec();
 		let modifier = 1;
 
 		if (exist) {
-			await this.likeModel.findOneAndDelete(search).exec();
+			await this.likeModel.findOneAndDelete(search);
 			modifier = -1;
 		} else {
 			try {
 				await this.likeModel.create(input);
 			} catch (err) {
-				console.log('Error, Service.model:', err.message);
+				console.log('Error, Service.model: ', err.message);
 				throw new BadRequestException(Message.CREATE_FAILED);
 			}
 		}
-		console.log(`-Like modifier ${modifier} -`);
+
+		console.log(`- Like modifier ${modifier} -`);
 		return modifier;
 	}
 
@@ -70,9 +72,10 @@ export class LikeService {
 			])
 			.exec();
 
+		console.log('data: ', data);
 		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
 		result.list = data[0].list.map((ele) => ele.favoriteProperty);
-		console.log('result:', result);
+		console.log('result: ', result);
 		return result;
 	}
 }
